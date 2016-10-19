@@ -312,8 +312,7 @@ jika dekripsi maka subkeynya 15-n jika enkripsi maka subkeynya tetap
 				System.out.print("Round key = ");
 				displayBits(subkey[n]);
 			}
-			// xor-ing Nilai L dan nilai  R baru memberikan  Nilai L baru. L baru disimpan
-			// dalam R and R baru disimpan dalam L, sehingga bertukarnya R dan L untuk round selanjutnya
+xor-ing Nilai L dan nilai  R baru memberikan Nilai L baru. L baru disimpan dalam R and R baru disimpan dalam L, sehingga bertukarnya R dan L untuk round selanjutnya
 			
 			int newL[] = xor(L, newR);
 			L = R;
@@ -324,21 +323,22 @@ jika dekripsi maka subkeynya 15-n jika enkripsi maka subkeynya tetap
 			displayBits(R);
 		}
 		
-		// R and L memiliki 2 bagian pada output sebelum melakukan final 
-		// permutation. disebut juga "Preoutput".
+R and L memiliki 2 bagian pada output sebelum melakukan final  permutation. disebut juga "Preoutput".
+
 		int output[] = new int[64];
 		System.arraycopy(R, 0, output, 0, 32);
 		System.arraycopy(L, 0, output, 32, 32);
 		int finalOutput[] = new int[64];
-		// berdasarkan FP table untuk preoutput, kita dapatkan the final output:
-		// Enkripsi  => final output adalah ciphertext
-		// Deskripsi => final output adalah plaintext
+
+berdasarkan FP table untuk preoutput, kita dapatkan the final output:
+Enkripsi  => final output adalah ciphertext
+Deskripsi => final output adalah plaintext
 		for(i=0 ; i < 64 ; i++) {
 			finalOutput[i] = output[FP[i]-1];
 		}
 		
-		// Sejak final output telah disimpan sebagai sebuat int array dari bit-bit,kita convert
-		// menjadi sebuah nilai hex:
+Setelah final output telah disimpan sebagai sebuat int array dari bit-bit,kita convert menjadi sebuah nilai hex:
+
 		String hex = new String();
 		System.out.println("\nHasil Biner :");
 		for(i=0 ; i < 16 ; i++) {
@@ -351,73 +351,77 @@ jika dekripsi maka subkeynya 15-n jika enkripsi maka subkeynya tetap
 			System.out.append(bin);
 		}
 		String asciiEquivalent = hexToASCII(hex);
-	
 		if(isDecrypt) {
 		
-			 //Nilai ASCII diperoleh dari nilai Hexa
+Nilai ASCII diperoleh dari nilai Hexa
       
-			System.out.println("\nHasil Deskripsi: "+ asciiEquivalent);
-		
-		} else {
-			
-			
+		System.out.println("\nHasil Deskripsi: "+ asciiEquivalent);
+		} else {	
 			System.out.println("\nHasil Enkripsi: "+ asciiEquivalent);
 		}
-		
-		
-     
 		return finalOutput;
 			
-	}
+		}
 	
+The KS (Struktur Key) fungsi menghasilkan putaran kunci.
+C1 dan D1 adalah nilai-nilai baru C dan D yang akan dihasilkan di putaran ini.
+membuat array baru C1[] dan D1[]
 
-	private static int[] KS(int round, int[] key) {
-		// The KS (Struktur Key) fungsi menghasilkan putaran kunci.
-		// C1 dan D1 adalah nilai-nilai baru C dan D yang akan dihasilkan di
-		// putaran ini.
+	private static int[] KS(int round, int[] key) {		
 		int C1[] = new int[28];
 		int D1[] = new int[28];
 		
-		// Rotasi array digunakan untuk mengatur berapa banyak rotasi yang harus dilakukan
+Rotasi array digunakan untuk mengatur berapa banyak rotasi yang harus dilakukan
 		int rotationTimes = (int) rotations[round];
-		// LeftShift () metode yang digunakan untuk rotasi (rotasi pada dasarnya adalah)
-		// Operasi pergeseran kiri
+		
+LeftShift () metode yang digunakan untuk rotasi (rotasi pada dasarnya adalah Operasi pergeseran kiri
+		
 		C1 = leftShift(C, rotationTimes);
 		D1 = leftShift(D, rotationTimes);
-		// CnDn stores the combined C1 and D1 halves
+		
+CnDn ada array yg menyimpan nilai dari C1 dan D1
+
 		int CnDn[] = new int[56];
 		System.arraycopy(C1, 0, CnDn, 0, 28);
 		System.arraycopy(D1, 0, CnDn, 28, 28);
-		// Kn menyimpan subkunci, yang dihasilkan dengan menerapkan tabel PC2
-		// Untuk CnDn
+
+Kn menyimpan subkunci, yang dihasilkan dengan menerapkan tabel PC2 Untuk CnDn
+		
 		int Kn[] = new int[48];
 		for(int i=0 ; i < Kn.length ; i++) {
 			Kn[i] = CnDn[PC2[i]-1];
 		}
 		
-		// Sekarang kita menyimpan C1 dan D1 di C dan D masing-masing, sehingga menjadi
-		// C lama dan D untuk putaran berikutnya. Subkey disimpan dan dikembalikan.
+Sekarang kita menyimpan C1 dan D1 di C dan D masing-masing, sehingga menjadi C lama dan D untuk putaran berikutnya. Subkey disimpan dan dikembalikan.
+
 		subkey[round] = Kn;
 		C = C1;
 		D = D1;
 		return Kn;
-	}
-	
+		}
+		
+Method untuk implementasi Fungsi Fiestel, 32 bits pertama pada R array akan di expand menggunakan E table.
+
 	private static int[] fiestel(int[] R, int[] roundKey) {
-		// Method untuk implementasi Fungsi Fiestel
-		// 32 bits pertama pada R array akan di expand menggunakan E table.
+		
 		int expandedR[] = new int[48];
 		for(int i=0 ; i < 48 ; i++) {
 			expandedR[i] = R[E[i]-1];
 		}
-		// xor hasil expansi R dan putaran kunci yang dihasilkan
+		
+xor hasil expansi R dan putaran kunci yang dihasilkan
+
 		int temp[] = xor(expandedR, roundKey);
-		// masukan ke s-box kemudian diterapkan pada hasil xor ini dan ini adalah
-		// Output dari fungsi Fiestel.
+		
+masukan ke s-box kemudian diterapkan pada hasil xor ini dan ini adalah
+Output dari fungsi Fiestel.
+
 		int output[] = sBlock(temp);
 		return output;
 	}
-	
+
+fungsi XOR ini kami mencari di internet
+
 	private static int[] xor(int[] a, int[] b) {
 		// Fungsi simple xor pada 2 int array
 		int answer[] = new int[a.length];
@@ -427,61 +431,63 @@ jika dekripsi maka subkeynya 15-n jika enkripsi maka subkeynya tetap
 		return answer;
 	}
 	
+S-box yang diterapkan dalam metode ini.	
+Kita tahu bahwa masukan akan menjadi 32 bit, maka kita akan loop 32/4 = 8 Kali (dibagi dengan 4 seperti yang kita akan mengambil 4 bit dari masukan pada setiap Iterasi).
 	private static int[] sBlock(int[] bits) {
-		// S-box yang diterapkan dalam metode ini.
-
 		int output[] = new int[32];
-		// Kita tahu bahwa masukan akan menjadi 32 bit, maka kita akan loop 32/4 = 8
-		// Kali (dibagi dengan 4 seperti yang kita akan mengambil 4 bit dari masukan pada setiap
-		// Iterasi).
 		for(int i=0 ; i < 8 ; i++) {
-			// S-box membutuhkan baris dan kolom, yang ditemukan dari
-			// Masukan bit. Pertama dan 6 bit dari iterasi saat
-			// (Yaitu bit 0 dan 5) memberikan baris bit.
+		
+S-box membutuhkan baris dan kolom, yang ditemukan dari Masukan bit. Pertama dan 6 bit dari iterasi saat (Yaitu bit 0 dan 5) memberikan baris bit.
 			int row[] = new int [2];
 			row[0] = bits[6*i];
 			row[1] = bits[(6*i)+5];
 			String sRow = row[0] + "" + row[1];
-			// Bit sama pada kolom yang ditemukan, yang merupakan 4 bit antara
-			// Dua baris bit (yaitu bit 1,2,3,4)
+			
+Bit sama pada kolom yang ditemukan, yang merupakan 4 bit antara Dua baris bit (yaitu bit 1,2,3,4)
+
 			int column[] = new int[4];
 			column[0] = bits[(6*i)+1];
 			column[1] = bits[(6*i)+2];
 			column[2] = bits[(6*i)+3];
 			column[3] = bits[(6*i)+4];
 			String sColumn = column[0] +""+ column[1] +""+ column[2] +""+ column[3];
-			// Konversi biner ke nilai desimal, untuk diberikan ke
-			// Array sebagai masukan
+			
+Konversi biner ke nilai desimal, untuk diberikan ke Array sebagai inputan
+
 			int iRow = Integer.parseInt(sRow, 2);
 			int iColumn = Integer.parseInt(sColumn, 2);
 			int x = S[i][(iRow*16) + iColumn];
-			// Kita mendapatkan nilai desimal dari S-box di sini, tapi kita perlu mengkonversi
-			// Ke biner:
+			
+Kita mendapatkan nilai desimal dari S-box di sini, tapi kita perlu mengkonversi Ke biner:
+			
 			String s = Integer.toBinaryString(x);
 			
-			// Padding diperlukan karena Jawa mengembalikan sebuah desimal '5' sebagai '111' di
-			// Biner, ketika kita membutuhkan '0111'.
+Padding diperlukan karena Java mengembalikan sebuah desimal '5' sebagai '111' di Biner, ketika kita membutuhkan '0111'.
+			
 			while(s.length() < 4) {
 				s = "0" + s;
 			}
-			// Bit biner ditambahkan ke output
+			
+Bit biner ditambahkan ke output
+			
+			
 			for(int j=0 ; j < 4 ; j++) {
 				output[(i*4) + j] = Integer.parseInt(s.charAt(j) + "");
 			}
 		}
-		// P tabel diterapkan untuk output dan ini adalah hasil akhir dari satu
-		// S-box putaran:
+		
+tabel diterapkan untuk output dan ini adalah hasil akhir dari satu S-box putaran:
+		
 		int finalOutput[] = new int[32];
 		for(int i=0 ; i < 32 ; i++) {
 			finalOutput[i] = output[P[i]-1];
 		}
 		return finalOutput;
 	}
-	
+
+Pergeseran Kiri terjadi di sini, yaitu setiap bit diputar ke kiri dan bit paling kiri disimpan di bit paling kanan. Ini adalah Menggeser operasi kiri
+
 	private static int[] leftShift(int[] bits, int n) {
-		// Pergeseran Kiri terjadi di sini, yaitu setiap bit diputar ke kiri
-		// Dan bit paling kiri disimpan di bit paling kanan. Ini adalah
-		// Menggeser operasi kiri
 		int answer[] = new int[bits.length];
 		System.arraycopy(bits, 0, answer, 0, bits.length);
 		for(int i=0 ; i < n ; i++) {
@@ -493,9 +499,11 @@ jika dekripsi maka subkeynya 15-n jika enkripsi maka subkeynya tetap
 		}
 		return answer;
 	}
-	
+
+Method to menampilkan bit-bit int array  sebagai nilai hexadecimal
+
 	private static void displayBits(int[] bits) {
-		// Method to menampilkan bit-bit int array  sebagai nilai hexadecimal
+		
 		for(int i=0 ; i < bits.length ; i+=4) {
 			String output = new String();
 			for(int j=0 ; j < 4 ; j++) {
