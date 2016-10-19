@@ -2,11 +2,9 @@
 tugas kriptografi des
 
 /*
-	Tugas DES kelompok 6
+
 	Implementasi algoritma DES
 	(modifiy)
-	Author: Manav Sanghavi		
-	www.pracspedia.com
 */
 
     import java.util.*;
